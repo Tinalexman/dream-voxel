@@ -1,60 +1,47 @@
-import { MutableRefObject } from "react";
+import {
+  defaultVertexShader,
+  defaultFragmentShader,
+} from "@/res/shaders/defaultShaders";
 
-const vertexShaderSource = `
-  attribute vec4 position;
-  void main() {
-    gl_Position = position;
-  }
-`;
+import Shader from "@/engine/shader/shader";
 
-const fragmentShaderSource = `
-  void main() {
-    gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);
-  }
-`;
+class Engine {
+  gl: WebGL2RenderingContext | null;
 
-export function initializeEngine(ref: MutableRefObject<null | HTMLCanvasElement>) {
-  const canvas = ref.current;
-  const gl = canvas?.getContext("webgl");
-
-  if (!gl || gl === null || gl === undefined) {
-    console.error("WebGL not supported");
-    return;
+  constructor() {
+    this.gl = null;
   }
 
-  const vertexShader = gl.createShader(gl.VERTEX_SHADER) as WebGLShader;
-  
-  gl.shaderSource(vertexShader, vertexShaderSource);
-  gl.compileShader(vertexShader);
+  initialized = () => {
+    return this.gl !== null;
+  };
 
-  const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)  as WebGLShader;
-  gl.shaderSource(fragmentShader, fragmentShaderSource);
-  gl.compileShader(fragmentShader);
+  context = () => {
+    return this.gl!;
+  };
 
-  const program = gl.createProgram() as WebGLProgram;
+  initialize = (gl: WebGL2RenderingContext) => {
+    this.gl = gl;
 
-  gl.attachShader(program, vertexShader);
-  gl.attachShader(program, fragmentShader);
-  gl.linkProgram(program);
-  gl.useProgram(program);
+    let shader = new Shader(defaultVertexShader, defaultFragmentShader);
 
+    
 
-  const vertices = new Float32Array([
-    -0.5, -0.5,
-    0.5, -0.5,
-    0.0, 0.5,
-  ]);
-  
-  const vertexBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
-  
-  const positionLocation = gl.getAttribLocation(program, 'position');
-  gl.enableVertexAttribArray(positionLocation);
-  gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-  
-  
+    const vertices = new Float32Array([-0.5, -0.5, 0.5, -0.5, 0.0, 0.5]);
 
-  gl.drawArrays(gl.TRIANGLES, 0, 3);
-  
+    const vertexBuffer = gl.createBuffer();
+    this.gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+    this.gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+    const positionLocation = gl.getAttribLocation(shader.getProgram(), "position");
+    this.gl.enableVertexAttribArray(positionLocation);
+    this.gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+    this.gl.clearColor(0.1, 0.1, 0.1, 1.0);
+    this.gl.clear(gl.COLOR_BUFFER_BIT);
+
+    this.gl.drawArrays(gl.TRIANGLES, 0, 3);
+  };
 }
+
+export default Engine;
