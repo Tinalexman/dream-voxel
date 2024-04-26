@@ -3,12 +3,13 @@
 import React, { useRef, useEffect } from "react";
 
 import { useGlobalStore } from "@/store/useGlobalStore";
+import Engine from "@/engine/engine";
 
 const Home = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
-    if (!useGlobalStore.getState().engine.initialized()) {
+    if (useGlobalStore.getState().gl === null) {
       const canvas = canvasRef.current;
       const gl = canvas?.getContext("webgl2");
 
@@ -16,7 +17,10 @@ const Home = () => {
         console.error("WebGL2 not supported");
         return;
       } else {
-        useGlobalStore.getState().engine.initialize(gl);
+        useGlobalStore.setState({ gl: gl });
+        const engine: Engine = useGlobalStore.getState().engine;
+        engine.initialize();
+        engine.render();
       }
     }
   }, []);

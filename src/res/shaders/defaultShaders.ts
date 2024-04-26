@@ -1,14 +1,19 @@
 
 
 export const defaultVertexShader = `
-  attribute vec4 position;
+  attribute vec3 position;
+
   void main() {
-    gl_Position = position;
+    gl_Position = vec4(position, 1.0);
   }
 `;
 
 export const defaultFragmentShader = `
+  precision mediump float;
+
+  uniform vec4 color;
+
   void main() {
-    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+    gl_FragColor = color;
   }
 `;
