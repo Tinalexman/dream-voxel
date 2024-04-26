@@ -1,3 +1,4 @@
+import { Vec2, Vec3, Vec4, Mat4 } from "gl-matrix";
 
 class Shader {
   #gl: WebGL2RenderingContext;
@@ -53,28 +54,37 @@ class Shader {
     return this.#gl.getUniformLocation(this.#program, name);
   };
 
-  loadVec4 = (name: string, x: number, y: number, z: number, w: number) => {
+  loadMat4 = (name: string, matrix: Mat4) => {
     const location: WebGLUniformLocation | null = this.#location(name);
     if (location !== null) {
-      this.#gl.uniform4f(location, x, y, z, w);
+      this.#gl.uniformMatrix4fv(location, false, matrix);
+    } else {
+      throw new Error(`Invalid uniform '${name}'`);
+    }
+  };  
+
+  loadVec4 = (name: string, vector: Vec4) => {
+    const location: WebGLUniformLocation | null = this.#location(name);
+    if (location !== null) {
+      this.#gl.uniform4f(location, vector.x, vector.y, vector.z, vector.w);
     } else {
       throw new Error(`Invalid uniform '${name}'`);
     }
   };
 
-  loadVec3 = (name: string, x: number, y: number, z: number) => {
+  loadVec3 = (name: string, vector: Vec3) => {
     const location: WebGLUniformLocation | null = this.#location(name);
     if (location !== null) {
-      this.#gl.uniform3f(location, x, y, z);
+      this.#gl.uniform3f(location, vector.x, vector.y, vector.z);
     } else {
       throw new Error(`Invalid uniform '${name}'`);
     }
   };
 
-  loadVec2 = (name: string, x: number, y: number) => {
+  loadVec2 = (name: string, vector: Vec2) => {
     const location: WebGLUniformLocation | null = this.#location(name);
     if (location !== null) {
-      this.#gl.uniform2f(location, x, y);
+      this.#gl.uniform2f(location, vector.x, vector.y);
     } else {
       throw new Error(`Invalid uniform '${name}'`);
     }
