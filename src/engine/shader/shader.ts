@@ -4,8 +4,7 @@ class Shader {
   #gl: WebGL2RenderingContext;
   #program: WebGLProgram;
 
-  #locations: WebGLUniformLocation[];
-  #names: string[];
+  #uniforms: Map<string, WebGLUniformLocation>;
 
   constructor(
     gl: WebGL2RenderingContext,
@@ -32,8 +31,7 @@ class Shader {
 
     gl.useProgram(this.#program);
 
-    this.#locations = [];
-    this.#names = [];
+    this.#uniforms = new Map();
   }
 
   getProgram = () => {
@@ -62,15 +60,12 @@ class Shader {
   };
 
   #location = (name: string) => {
-    let index = this.#names.indexOf(name);
-    if (index === -1) return null;
-
-    return this.#locations[index];
+    return this.#uniforms.get(name);
   };
 
   loadMat4 = (name: string, matrix: Mat4) => {
-    let location: WebGLUniformLocation | null = this.#location(name);
-    if (location === null) {
+    let location: WebGLUniformLocation | undefined = this.#location(name);
+    if (location === undefined) {
       throw new Error(`Invalid uniform name ${name}`);
     } else {
       this.#gl.uniformMatrix4fv(location, false, matrix);
@@ -78,8 +73,8 @@ class Shader {
   };
 
   loadVec4 = (name: string, vector: Vec4) => {
-    let location: WebGLUniformLocation | null = this.#location(name);
-    if (location === null) {
+    let location: WebGLUniformLocation | undefined = this.#location(name);
+    if (location === undefined) {
       throw new Error(`Invalid uniform name ${name}`);
     } else {
       this.#gl.uniform4f(location, vector.x, vector.y, vector.z, vector.w);
@@ -87,8 +82,8 @@ class Shader {
   };
 
   loadVec3 = (name: string, vector: Vec3) => {
-    let location: WebGLUniformLocation | null = this.#location(name);
-    if (location === null) {
+    let location: WebGLUniformLocation | undefined = this.#location(name);
+    if (location === undefined) {
       throw new Error(`Invalid uniform name ${name}`);
     } else {
       this.#gl.uniform3f(location, vector.x, vector.y, vector.z);
@@ -96,8 +91,8 @@ class Shader {
   };
 
   loadVec2 = (name: string, vector: Vec2) => {
-    let location: WebGLUniformLocation | null = this.#location(name);
-    if (location === null) {
+    let location: WebGLUniformLocation | undefined = this.#location(name);
+    if (location === undefined) {
       throw new Error(`Invalid uniform name ${name}`);
     } else {
       this.#gl.uniform2f(location, vector.x, vector.y);
@@ -105,22 +100,22 @@ class Shader {
   };
 
   loadFloat = (name: string, val: number) => {
-    let location: WebGLUniformLocation | null = this.#location(name);
-    if (location === null) {
+    let location: WebGLUniformLocation | undefined = this.#location(name);
+    if (location === undefined) {
       throw new Error(`Invalid uniform name ${name}`);
     } else {
       this.#gl.uniform1f(location, val);
     }
   };
 
+  
+
   storeUniform = (names: string[]) => {
     for (let i = 0; i < names.length; ++i) {
       let name = names[i];
       let location = this.#gl.getUniformLocation(this.#program, name);
       if (location === null) return;
-
-      this.#locations.push(location);
-      this.#names.push(name);
+      this.#uniforms.set(name, location);
     }
   };
 }

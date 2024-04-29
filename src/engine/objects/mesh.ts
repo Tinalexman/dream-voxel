@@ -21,6 +21,11 @@ class Mesh {
       this.#shader.getProgram(),
       "position"
     );
+
+    const texture = gl.getAttribLocation(
+      this.#shader.getProgram(), "texCoords"
+    );
+
     this.#verticesVBO = new VBO(gl, vertices, position, 3);
   }
 

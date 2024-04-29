@@ -8,6 +8,7 @@ import { Vec2, Vec4 } from "gl-matrix";
 import Renderer from "./renderer/renderer";
 import Transform from "./objects/transform";
 import Camera2D from "./camera/camera2d";
+import InputHandler, { KEYS } from "./handlers/input_handler";
 
 class Engine {
   #mesh1: Mesh | null;
@@ -23,8 +24,10 @@ class Engine {
   #currentTime: number;
   #lagTime: number;
 
-  #kUPS = 60; // Updates per second
-  #kMPF = 1000 / this.#kUPS; // Milliseconds per update.
+  #kUPS = 60;
+  #kMPF = 1000 / this.#kUPS;
+
+  #inputHandler: InputHandler;
 
   constructor(gl: WebGL2RenderingContext) {
     this.#gl = gl;
@@ -39,12 +42,18 @@ class Engine {
 
     this.#renderer = new Renderer(gl);
 
+    this.#inputHandler = new InputHandler();
+
     this.#running = false;
     this.#frameID = -1;
     this.#previousTime = 0.0;
     this.#currentTime = 0.0;
     this.#lagTime = 0.0;
   }
+
+  getInputHandlers = () => {
+    return [this.#inputHandler.onKeyDown, this.#inputHandler.onKeyUp];
+  };
 
   #initialize = () => {
     let shader = useGlobalStore.getState().resourceManager.getDefaultShader();
@@ -89,13 +98,12 @@ class Engine {
       this.#frameID = requestAnimationFrame(this.#loop);
       this.#render();
 
-      this.#input();
-
       let currentTime = performance.now();
       let elapsedTime = currentTime - this.#previousTime;
       this.#previousTime = currentTime;
       this.#lagTime += elapsedTime;
       while (this.#lagTime >= this.#kMPF && this.#running) {
+        this.#inputHandler.update();
         this.#update();
         this.#lagTime -= this.#kMPF;
       }
@@ -106,22 +114,39 @@ class Engine {
     let delta = 0.05;
     let t1 = this.#mesh1?.getTransform();
     let prev = t1!.rotation.z;
-    t1?.rotation.set([0.0, 0.0, prev + (10 * delta)]);
-    t1?.setDirty();
+    t1!.rotation.set([0.0, 0.0, prev + 10 * delta]);
+    if (this.#inputHandler.isKeyPressed(KEYS.Left)) {
+      prev = t1!.position.x;
+      t1!.position.set([prev + (delta * 0.5), 0.0, 0.0]);
+    } else if (this.#inputHandler.isKeyPressed(KEYS.Right)) {
+      prev = t1!.position.x;
+      t1!.position.set([prev - (delta * 0.5), 0.0, 0.0]);
+    }
+    t1!.setDirty();
 
     let t2 = this.#mesh2?.getTransform();
-    prev = t2!.position.x;
-
-    let step = 0.5 * delta;
-    if(prev > 2 || prev < -2 ) {
-      step *= -1
+    if (this.#inputHandler.isKeyPressed(KEYS.Up)) {
+      prev = t2!.scale.x;
+      t2!.scale.set([prev + (delta * 0.1), prev + (delta * 0.1), 0.0]);
+      t2?.setDirty();
+    } else if (this.#inputHandler.isKeyPressed(KEYS.Down)) {
+      prev = t2!.scale.x;
+      t2!.scale.set([prev - (delta * 0.1), prev - (delta * 0.1), 0.0]);
+      t2?.setDirty();
     }
 
-    t2?.position.set([prev + step, 2, 0]);
-    // t2?.setDirty();
+
+    if(this.#inputHandler.isKeyPressed(KEYS.F)) {
+      prev = this.#camera.getZoom();
+      this.#camera.setZoom(prev + (delta * 0.5));
+    }
+    else if(this.#inputHandler.isKeyPressed(KEYS.G)) {
+      prev = this.#camera.getZoom();
+      this.#camera.setZoom(prev - (delta * 0.5));
+    }
+    
   };
 
-  #input = () => {};
 
   #render = () => {
     this.#gl.clearColor(0.1, 0.1, 0.1, 1.0);

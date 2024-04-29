@@ -8,13 +8,13 @@ class Camera2D {
   height: number;
   #viewDirty: boolean;
 
-  constructor(center: Vec2, size: Vec2, width: number) {
+  constructor(center: Vec2, size: Vec2, zoom: number) {
     this.#view = new Mat4();
     this.#view.identity();
 
     this.center = center;
     this.size = size;
-    this.width = width;
+    this.width = zoom;
 
     let ratio = this.size.y / this.size.x;
     this.height = this.width * ratio;
@@ -22,10 +22,17 @@ class Camera2D {
     this.#viewDirty = true;
   }
 
-  #getWorldHeight = () => {
+  getZoom = () => {
+    return this.width;
+  }
+ 
+  setZoom = (val : number) => {
+    this.width = val;
     let ratio = this.size.y / this.size.x;
-    return this.width * ratio;
-  };
+    this.height = this.width * ratio;
+
+    this.#viewDirty = true;
+  }
 
   getView = () => {
     if (this.#viewDirty) {
