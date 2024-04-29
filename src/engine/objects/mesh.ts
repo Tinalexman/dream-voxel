@@ -1,31 +1,47 @@
 import { Vec4 } from "gl-matrix";
 import Shader from "../shader/shader";
 import VBO from "./buffers/vbo";
+import Transform from "./transform";
 
 class Mesh {
-  #gl: WebGL2RenderingContext;
   #shader: Shader;
+  #transform: Transform;
   #verticesVBO: VBO;
 
-  constructor(gl: WebGL2RenderingContext, vertices: Float32Array, shader: Shader) {
+  constructor(
+    gl: WebGL2RenderingContext,
+    vertices: Float32Array,
+    shader: Shader,
+    transform: Transform
+  ) {
     this.#shader = shader;
-    this.#gl = gl;
+    this.#transform = transform;
 
-    const position = gl.getAttribLocation(this.#shader.getProgram(), "position");
+    const position = gl.getAttribLocation(
+      this.#shader.getProgram(),
+      "position"
+    );
     this.#verticesVBO = new VBO(gl, vertices, position, 3);
   }
 
-  loadUniform4 = (name: string, vector: Vec4) => {
-    this.#shader.start();
-    this.#shader.loadVec4(name, vector);
+  getShader = () => {
+    return this.#shader;
+  };
+
+  getTransform = () => {
+    return this.#transform;
   }
 
-  draw = () => {
-    this.#shader.start();
+  start = () => {
     this.#verticesVBO.start();
-    this.#gl.drawArrays(this.#gl.TRIANGLES, 0, this.#verticesVBO.length());
+  };
+
+  count = () => {
+    return this.#verticesVBO.length();
+  };
+
+  stop = () => {
     this.#verticesVBO.stop();
-    this.#shader.stop();
   };
 }
 

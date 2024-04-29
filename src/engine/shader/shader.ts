@@ -4,7 +4,14 @@ class Shader {
   #gl: WebGL2RenderingContext;
   #program: WebGLProgram;
 
-  constructor(gl: WebGL2RenderingContext, vertexSource: string, fragmentSource: string) {
+  #locations: WebGLUniformLocation[];
+  #names: string[];
+
+  constructor(
+    gl: WebGL2RenderingContext,
+    vertexSource: string,
+    fragmentSource: string
+  ) {
     this.#gl = gl;
 
     const vertexShader = this.#loadShader(gl.VERTEX_SHADER, vertexSource);
@@ -24,6 +31,9 @@ class Shader {
     gl.deleteShader(fragmentShader);
 
     gl.useProgram(this.#program);
+
+    this.#locations = [];
+    this.#names = [];
   }
 
   getProgram = () => {
@@ -44,58 +54,73 @@ class Shader {
     this.#gl.compileShader(shader);
     if (!this.#gl.getShaderParameter(shader, this.#gl.COMPILE_STATUS)) {
       throw new Error(
-        "A shader compiling error occurred: " + this.#gl.getShaderInfoLog(shader)
+        "A shader compiling error occurred: " +
+          this.#gl.getShaderInfoLog(shader)
       );
     }
     return shader;
   };
 
   #location = (name: string) => {
-    return this.#gl.getUniformLocation(this.#program, name);
+    let index = this.#names.indexOf(name);
+    if (index === -1) return null;
+
+    return this.#locations[index];
   };
 
   loadMat4 = (name: string, matrix: Mat4) => {
-    const location: WebGLUniformLocation | null = this.#location(name);
-    if (location !== null) {
-      this.#gl.uniformMatrix4fv(location, false, matrix);
+    let location: WebGLUniformLocation | null = this.#location(name);
+    if (location === null) {
+      throw new Error(`Invalid uniform name ${name}`);
     } else {
-      throw new Error(`Invalid uniform '${name}'`);
+      this.#gl.uniformMatrix4fv(location, false, matrix);
     }
-  };  
+  };
 
   loadVec4 = (name: string, vector: Vec4) => {
-    const location: WebGLUniformLocation | null = this.#location(name);
-    if (location !== null) {
-      this.#gl.uniform4f(location, vector.x, vector.y, vector.z, vector.w);
+    let location: WebGLUniformLocation | null = this.#location(name);
+    if (location === null) {
+      throw new Error(`Invalid uniform name ${name}`);
     } else {
-      throw new Error(`Invalid uniform '${name}'`);
+      this.#gl.uniform4f(location, vector.x, vector.y, vector.z, vector.w);
     }
   };
 
   loadVec3 = (name: string, vector: Vec3) => {
-    const location: WebGLUniformLocation | null = this.#location(name);
-    if (location !== null) {
-      this.#gl.uniform3f(location, vector.x, vector.y, vector.z);
+    let location: WebGLUniformLocation | null = this.#location(name);
+    if (location === null) {
+      throw new Error(`Invalid uniform name ${name}`);
     } else {
-      throw new Error(`Invalid uniform '${name}'`);
+      this.#gl.uniform3f(location, vector.x, vector.y, vector.z);
     }
   };
 
   loadVec2 = (name: string, vector: Vec2) => {
-    const location: WebGLUniformLocation | null = this.#location(name);
-    if (location !== null) {
-      this.#gl.uniform2f(location, vector.x, vector.y);
+    let location: WebGLUniformLocation | null = this.#location(name);
+    if (location === null) {
+      throw new Error(`Invalid uniform name ${name}`);
     } else {
-      throw new Error(`Invalid uniform '${name}'`);
+      this.#gl.uniform2f(location, vector.x, vector.y);
     }
   };
 
   loadFloat = (name: string, val: number) => {
-    const location: WebGLUniformLocation | null = this.#location(name);
-    if (location !== null) {
-      this.#gl.uniform1f(location, val);
+    let location: WebGLUniformLocation | null = this.#location(name);
+    if (location === null) {
+      throw new Error(`Invalid uniform name ${name}`);
     } else {
-      throw new Error(`Invalid uniform '${name}'`);
+      this.#gl.uniform1f(location, val);
+    }
+  };
+
+  storeUniform = (names: string[]) => {
+    for (let i = 0; i < names.length; ++i) {
+      let name = names[i];
+      let location = this.#gl.getUniformLocation(this.#program, name);
+      if (location === null) return;
+
+      this.#locations.push(location);
+      this.#names.push(name);
     }
   };
 }

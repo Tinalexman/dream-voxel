@@ -4,17 +4,29 @@ import { create } from "zustand";
 
 type GlobalConfig = {
   gl: WebGL2RenderingContext | null;
-  engine: Engine;
+  canvasSize: number[];
+  gridSize : number;
+  engine: Engine | null;
   resourceManager: ResourceManager;
 };
 
 export const useGlobalStore = create<GlobalConfig>((set) => ({
   gl: null,
-  engine: new Engine(),
+  canvasSize: [0.0, 0.0],
+  gridSize: 10,
+  engine: null,
   resourceManager: new ResourceManager(),
 }));
 
-
 export function getGL() {
   return useGlobalStore.getState().gl;
+}
+
+export function getDimesions() {
+  return useGlobalStore.getState().canvasSize;
+}
+
+
+export function getGridSize() {
+  return useGlobalStore.getState().gridSize;
 }

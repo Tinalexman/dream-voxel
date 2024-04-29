@@ -17,18 +17,29 @@ const Home = () => {
         console.error("WebGL2 not supported");
         return;
       } else {
+        let w = window.innerWidth,
+          h = window.innerHeight;
+
+        useGlobalStore.setState({ canvasSize: [w * 0.6, h * 0.8] });
         useGlobalStore.setState({ gl: gl });
-        const engine: Engine = useGlobalStore.getState().engine;
-        engine.initialize();
-        engine.render();
+
+        const engine: Engine = new Engine(gl);
+        useGlobalStore.setState({engine: engine});
+        
+        engine.start();
       }
     }
   }, []);
 
   return (
-    <canvas ref={canvasRef} className="w-[100vw] h-[100vh]">
-      Your browser does not support WEBGL2
-    </canvas>
+    <div className="w-[100vw] h-[100vh] relative">
+      <canvas
+        ref={canvasRef}
+        className="w-[60vw] h-[80vh] absolute left-[20vw] top-[10vh]"
+      >
+        Your browser does not support WEBGL2
+      </canvas>
+    </div>
   );
 };
 

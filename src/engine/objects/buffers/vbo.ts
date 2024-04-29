@@ -18,8 +18,8 @@ class VBO {
 
     this.#length = data.length / size;
 
-    gl.enableVertexAttribArray(this.#location);
     gl.vertexAttribPointer(this.#location, size, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(this.#location);
   }
 
   length = () => {

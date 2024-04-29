@@ -2,9 +2,11 @@
 
 export const defaultVertexShader = `
   attribute vec3 position;
+  uniform mat4 transformation;
+  uniform mat4 view;
 
   void main() {
-    gl_Position = vec4(position, 1.0);
+    gl_Position = view * transformation * vec4(position, 1.0);
   }
 `;
 
