@@ -26,7 +26,7 @@ class Mesh {
       this.#shader.getProgram(), "texCoords"
     );
 
-    this.#verticesVBO = new VBO(gl, vertices, position, 3);
+    this.#verticesVBO = new VBO(gl, vertices, position, 2);
   }
 
   getShader = () => {

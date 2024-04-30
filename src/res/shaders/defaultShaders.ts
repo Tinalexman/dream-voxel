@@ -1,7 +1,7 @@
 
 
 export const defaultVertexShader = `
-  attribute vec3 position;
+  attribute vec2 position;
   // attribute vec2 texCoords;
   uniform mat4 transformation;
   uniform mat4 view;
@@ -9,7 +9,7 @@ export const defaultVertexShader = `
   // varying vec2 textureCoords;
 
   void main() {
-    gl_Position = view * transformation * vec4(position, 1.0);
+    gl_Position = view * transformation * vec4(position, 0.0, 1.0);
     // textureCoords = texCoords;
   }
 `;

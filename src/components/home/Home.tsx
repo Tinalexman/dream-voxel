@@ -24,12 +24,12 @@ const Home = () => {
         useGlobalStore.setState({ gl: gl });
 
         const engine: Engine = new Engine(gl);
-        useGlobalStore.setState({engine: engine});
+        useGlobalStore.setState({ engine: engine });
 
         let handlers = engine.getInputHandlers();
-        window.addEventListener('keydown', handlers[0]);
-        window.addEventListener('keyup', handlers[1]);
-        
+        window.addEventListener("keydown", handlers[0]);
+        window.addEventListener("keyup", handlers[1]);
+
         engine.start();
       }
     }

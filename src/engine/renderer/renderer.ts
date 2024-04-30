@@ -18,7 +18,7 @@ class Renderer {
     shader.loadMat4("view", camera.getView());
 
     mesh.start();
-    this.#gl.drawArrays(this.#gl.TRIANGLE_STRIP, 0, mesh.count());
+    this.#gl.drawArrays(this.#gl.LINES, 0, mesh.count());
     mesh.stop();
   };
 }

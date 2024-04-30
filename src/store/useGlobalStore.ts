@@ -13,7 +13,7 @@ type GlobalConfig = {
 export const useGlobalStore = create<GlobalConfig>((set) => ({
   gl: null,
   canvasSize: [0.0, 0.0],
-  gridSize: 10,
+  gridSize: 2,
   engine: null,
   resourceManager: new ResourceManager(),
 }));
